@@ -1,0 +1,4 @@
+*.conf
+!docker.nginx.conf
+!docker.vh.conf
+
