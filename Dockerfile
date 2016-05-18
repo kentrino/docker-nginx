@@ -3,8 +3,6 @@ FROM nginx:1.9.15-alpine
 COPY docker.nginx.conf /etc/nginx/nginx.conf
 COPY docker.vh.conf /etc/nginx/vh.conf
 
-VOLUME /volume
-
 ENV GROUP_ID=55
 ENV NGINX_USER_ID=1060
 
