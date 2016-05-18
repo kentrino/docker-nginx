@@ -1,23 +1,25 @@
 <%
 if ENV['OS'] != 'Mac'
-  ENV['APP_NAME'] = '$app_name'
   ENV['SERVER_NAME'] = '$host_server_name'
 end
 %>
 
-upstream <%= ENV['APP_NAME'] %> {
-  server unix:/volume/unicorn.<%= ENV['APP_NAME'] %>.sock;
-  #  fail_timeout=0
+upstream unicorn {
+  <% if docker %>
+  server unix:/volume/tmp/unicorn.sock;
+  <% else %>
+  server unix:/tmp/unicorn.sock;
+  <% end %>
 }
 
 server {
   listen 80;
-  server_name <%= ENV['APP_NAME'] %>;
+  server_name <%= ENV['SERVER_NAME'] %>;
 
   index index.html;
 
   <% if docker %>
-  root /var/www/app/public;
+  root /volume/public;
   <% else %>
   root <%= RAILS_ROOT %>/public;
   <% end %>
@@ -26,16 +28,15 @@ server {
   location ^~ /assets/ {
     <% if ENV['RAILS_ENV'] == 'production' %>
     root <%= RAILS_ROOT %>/public;
-    # alias <%= RAILS_ROOT %>/public/assets/$1;
     <% elsif docker %>
-    root /var/www/app;
+    root /volume/public;
     <% else %>
-    proxy_pass http://<%= ENV['APP_NAME'] %>;
+    proxy_pass http://unicorn;
     <% end %>
   }
 
   location / {
-    proxy_pass http://<%= ENV['APP_NAME'] %>;
+    proxy_pass http://unicorn;
 
     # クライアントのIPアドレス
     proxy_set_header X-Real-IP $remote_addr;
@@ -70,7 +71,7 @@ server {
   # 静的ファイルをキャッシュする
   location ~ .*\.(html?|jpe?g|gif|png|css|js|ico|swf|inc) {
     <% if ENV['RAILS_ENV'] == 'production' || docker %>
-    proxy_cache  <%= ENV['APP_NAME'] %>;
+    proxy_cache  app;
     proxy_cache_valid any 1h;
     <% end %>
 
@@ -80,8 +81,8 @@ server {
   }
 
   # ログ関連設定
-  access_log  /volume/<%= ENV['APP_NAME'] %>.access.log  main;
-  error_log  /volume/<%= ENV['APP_NAME'] %>.error.log  error;
+  access_log  /volume/log/nginx/access.log  main;
+  error_log  /volume/log/nginx/error.log  error;
 
   <% if ENV['RAILS_ENV'] == 'production' || docker %>
   # 403の場合404であるように見せる

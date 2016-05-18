@@ -18,7 +18,7 @@ RAILS_ROOT = File.expand_path('../../../', __FILE__)
 # Parse options ===========================================================
 all_yes = false
 OptionParser.new do |opt|
-  opt.on('-y', 'Yes to all'){|v| all_yes = true}
+  opt.on('-y', 'Yes to all') { all_yes = true }
   opt.parse!(ARGV)
 end
 
@@ -43,9 +43,7 @@ cli = HighLine.new
     yes = cli.ask("Generate #{conf[:dest]} from #{conf[:source]}? (Y/n)") == 'y'
   end
 
-  if all_yes|| yes
-    File.write(conf[:dest], File.read(conf[:source]))
-  end
+  File.write(conf[:dest], File.read(conf[:source])) if all_yes || yes
 end
 
 # Make cache and log directory ============================================
