@@ -1,6 +1,4 @@
 <%
-app_root = '/var/www/app'
-
 if ENV['OS'] != 'Mac'
   ENV['SERVER_NAME'] = '$host_server_name'
 end
@@ -8,7 +6,7 @@ end
 
 upstream unicorn {
   <% if docker %>
-  server unix:<%=app_root%>/tmp/unicorn.sock;
+  server unix:/var/run/unicorn.sock;
   <% else %>
   server unix:/tmp/unicorn.sock;
   <% end %>
@@ -21,7 +19,7 @@ server {
   index index.html;
 
   <% if docker %>
-  root <%=app_root%>/public;
+  root /var/www/html;
   <% else %>
   root <%= RAILS_ROOT %>/public;
   <% end %>
@@ -31,7 +29,7 @@ server {
     <% if ENV['RAILS_ENV'] == 'production' %>
     root <%= RAILS_ROOT %>/public;
     <% elsif docker %>
-    root <%=app_root%>/public;
+    root /var/www/html;
     <% else %>
     proxy_pass http://unicorn;
     <% end %>
@@ -83,8 +81,8 @@ server {
   }
 
   # ログ関連設定
-  access_log  <%=app_root%>/log/nginx/access.log  main;
-  error_log  <%=app_root%>/log/nginx/error.log  error;
+  access_log  /var/log/nginx/access.log  main;
+  error_log  /var/log/nginx/error.log  error;
 
   <% if ENV['RAILS_ENV'] == 'production' || docker %>
   # 403の場合404であるように見せる
