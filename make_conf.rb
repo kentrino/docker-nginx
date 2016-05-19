@@ -11,7 +11,7 @@ def check_env(ary)
   end
 end
 
-def from_erb(erb_file, docker)
+def from_erb(erb_file, docker, docker_dev)
   conf_erb_tempalte = File.read(erb_file, encoding: Encoding::UTF_8)
   erb = ERB.new(conf_erb_tempalte)
   conf = erb.result(binding)
@@ -26,12 +26,20 @@ DIR = File.expand_path(File.dirname(__FILE__)).to_s
 RAILS_ROOT = File.expand_path('../../../', __FILE__)
 
 # Create .conf files ======================================================
-check_env %w(APP_NAME SERVER_NAME OS)
+check_env %w(SERVER_NAME OS)
 nginx_source_dir = DIR
 
-[true, false].each do |docker|
+[:docker, :docker_dev, :local].each do |mode|
+  docker = docker_dev = false
+  if mode == :docker
+    docker = true
+  elsif mode == :docker_dev
+    docker_dev = true
+  end
+
   prefix = ''
   prefix = 'docker.' if docker
+  prefix = 'docker-dev.' if docker_dev
 
   app_conf = {
     source: nginx_source_dir + '/vh.conf.erb',
@@ -44,6 +52,6 @@ nginx_source_dir = DIR
   }
 
   [main_conf, app_conf].each do |conf|
-    File.write(conf[:dest], from_erb(conf[:source], docker))
+    File.write(conf[:dest], from_erb(conf[:source], docker, docker_dev))
   end
 end

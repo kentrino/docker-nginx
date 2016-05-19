@@ -1,7 +1,7 @@
 <%
-if ENV['OS'] != 'Mac'
-  ENV['SERVER_NAME'] = '$host_server_name'
-end
+#if ENV['OS'] != 'Mac'
+#  ENV['SERVER_NAME'] = '$host_server_name'
+#end
 %>
 
 upstream unicorn {
@@ -18,7 +18,7 @@ server {
 
   index index.html;
 
-  <% if docker %>
+  <% if docker || docker_dev %>
   root /var/www/html;
   <% else %>
   root <%= RAILS_ROOT %>/public;
@@ -26,9 +26,7 @@ server {
 
   # production環境ではassetsが動かなくなる？
   location ^~ /assets/ {
-    <% if ENV['RAILS_ENV'] == 'production' %>
-    root <%= RAILS_ROOT %>/public;
-    <% elsif docker %>
+    <% if docker %>
     root /var/www/html;
     <% else %>
     proxy_pass http://unicorn;
@@ -70,7 +68,7 @@ server {
 
   # 静的ファイルをキャッシュする
   location ~ .*\.(html?|jpe?g|gif|png|css|js|ico|swf|inc) {
-    <% if ENV['RAILS_ENV'] == 'production' || docker %>
+    <% if docker %>
     proxy_cache  app;
     proxy_cache_valid any 1h;
     <% end %>
@@ -84,7 +82,7 @@ server {
   access_log  /var/log/nginx/access.log  main;
   error_log  /var/log/nginx/error.log  error;
 
-  <% if ENV['RAILS_ENV'] == 'production' || docker %>
+  <% if docker %>
   # 403の場合404であるように見せる
   error_page  404  /404.html;
   error_page  403 =404  /404.html;

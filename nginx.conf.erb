@@ -5,7 +5,7 @@ if docker
 end
 %>
 
-<%= 'user nginx;' if ENV['OS'] != 'Mac' || docker %>
+<%= 'user nginx;' if docker %>
 # コア数と同じだけworker processを起動する
 worker_processes auto;
 
@@ -29,7 +29,7 @@ events {
 # worker_connectionの3-4倍を指定するとよい
 worker_rlimit_nofile 15000;
 
-<% if ENV['OS'] != 'Mac' || docker %>
+<% if docker %>
 # env SERVER_NAME;
 # env APP_NAME;
 <% end %>
@@ -75,7 +75,7 @@ http {
   # limit_conn  addr  100;
 
   # Proxy cacheの設定
-  <% if ENV['RAILS_ENV'] == 'production' || docker %>
+  <% if docker %>
   proxy_cache_path      /var/cache/nginx/app levels=1:2 keys_zone=app:100m inactive=7d max_size=1000m;
   proxy_temp_path  /var/cache/nginx/proxy_temp;
   <% end %>
@@ -102,7 +102,7 @@ http {
       '$status $body_bytes_sent "$http_referer" '
       '"$http_user_agent" "$http_x_forwarded_for"';
 
-  <% if docker %>
+  <% if docker || docker_dev %>
   include vh.conf;
   <% else %>
   include servers/*;

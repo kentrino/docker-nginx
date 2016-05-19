@@ -1,4 +1,7 @@
 *.conf
 !docker.nginx.conf
 !docker.vh.conf
+!docker-dev.nginx.conf
+!docker-dev.vh.conf
 
+.envrc
