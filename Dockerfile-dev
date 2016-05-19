@@ -10,8 +10,8 @@ ARG GROUP_ID
 ARG USER_ID
 
 RUN deluser nginx && \
-    addgroup nginx -g $GROUP_ID && \
-    adduser -D -H -G nginx -u $USER_ID nginx
+    addgroup -S nginx -g $GROUP_ID && \
+    adduser -S -D -H -G nginx -u $USER_ID nginx
 
 EXPOSE 80 443
 

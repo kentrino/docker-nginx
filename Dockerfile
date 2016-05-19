@@ -3,12 +3,14 @@ FROM nginx:1.9.15-alpine
 COPY docker.nginx.conf /etc/nginx/nginx.conf
 COPY docker.vh.conf /etc/nginx/vh.conf
 
-ENV GROUP_ID=55
-ENV NGINX_USER_ID=1060
+ENV GROUP_ID=110
+ENV NGINX_USER_ID=100
 
 RUN deluser nginx && \
-    addgroup nginx -g $GROUP_ID && \
-    adduser -D -H -G nginx -u $NGINX_USER_ID nginx
+    addgroup -S nginx -g $GROUP_ID && \
+
+    # user nginx must be a system user
+    adduser -S -D -H -s /sbin/nologin -g nginx -G nginx -u $NGINX_USER_ID nginx
 
 EXPOSE 80 443
 
