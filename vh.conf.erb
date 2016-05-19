@@ -8,7 +8,7 @@ upstream unicorn {
   <% if docker %>
   server unix:/var/run/unicorn.sock;
   <% else %>
-  server unix:/tmp/unicorn.sock;
+  server unix:/var/run/unicorn.sock;
   <% end %>
 }
 
